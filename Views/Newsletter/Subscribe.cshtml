@@ -1,15 +1,22 @@
+@model CloudFluffInc.Models.Subscriber
+
 @{
     ViewData["Title"] = "Subscribe to our Newsletter";
 }
 
 <h2>Subscribe to our Newsletter</h2>
 
-<form method="post" action="/Newsletter/Subscribe">
-        <label for="name">Name:</label>
-        <input type="text" id="name" name="name" />
+@if (ViewBag.Message != null)
+{
+    <p style="color: green;">@ViewBag.Message</p>
+}
 
-        <label for="email">Email:</label>
-        <input type="email" id="email" name="email" />
-        
+<form method="post" asp-action="Subscribe">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+
+        <label asp-for="Email"></label>
+        <input asp-for="Email" class="form-control" />
+
         <button type="submit">Subscribe</button>
 </form>

@@ -1,27 +1,24 @@
 using Microsoft.AspNetCore.Mvc;
+using CloudFluffInc.Models;
 
 namespace CloudFluffInc.Controllers;
 
 public class NewsletterController : Controller
 {
-
-    // GET: /Newsletter/Subscribe
+    [HttpGet]
     public IActionResult Subscribe()
     {
         return View();
     }
 
-    // POST: /Newsletter/Subscribe
     [HttpPost]
-    public IActionResult Subscribe(string name, string email)
+    public IActionResult Subscribe(Subscriber subscriber)
     {
-        // Add subscription logic here
-        // ...
+        // TODO: Add subscription logic here
 
-        // Write to the console
-        Console.WriteLine($"New subscription - Name: {name} Email: {email}");
+        Console.WriteLine($"New subscription - Name: {subscriber.Name} Email: {subscriber.Email}");
 
-        // Send a message to the user
-        return Content($"Thank you {name} for subscribing to our newsletter!");
+        ViewBag.Message = $"Thank you {subscriber.Name} for subscribing to our newsletter!";
+        return View("Subscribe");
     }
 }
