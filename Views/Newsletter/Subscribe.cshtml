@@ -6,9 +6,20 @@
 
 <h2>Subscribe to our Newsletter</h2>
 
-@if (ViewBag.Message != null)
+@if (!ViewData.ModelState.IsValid)
 {
-    <p style="color: green;">@ViewBag.Message</p>
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @Html.ValidationSummary(false, null, new { @class = "text-danger" })
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="fas fa-times"></i></button>
+    </div>
 }
 
 <form method="post" asp-action="Subscribe">
@@ -23,8 +34,9 @@
         <input asp-for="Email" class="form-control" />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
-
-    <button type="submit">Subscribe</button>
+    <div class="mt-3">
+        <button type="submit" class="btn btn-primary">Subscribe</button>
+    </div>
 </form>
 
 @section Scripts {

@@ -9,6 +9,7 @@ public class Subscriber
     public string Name { get; set; } = string.Empty;
 
     [Required]
-    [EmailAddress(ErrorMessage = "Invalid email address")]
+    [EmailAddress]
+    [RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid email address")]
     public string Email { get; set; } = string.Empty;
 }
