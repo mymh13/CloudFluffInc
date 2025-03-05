@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Mvc;
 using CloudFluffInc.Models;
 
 namespace CloudFluffInc.Controllers;
@@ -35,5 +35,24 @@ public class NewsletterController : Controller
         TempData["SuccessMessage"] = $"Thank you for subscribing, {subscriber.Name}! You will receive our newsletter at {subscriber.Email}";
 
         return RedirectToAction(nameof(Subscribe));
+    }
+
+    [HttpGet]
+    public IActionResult Subscribers()
+    {
+        return View(_subscribers);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Unsubscribe(string email)
+    {
+        var subscriber = _subscribers.FirstOrDefault(s => s.Email == email);
+        if (subscriber != null)
+        {
+            _subscribers.Remove(subscriber);
+            TempData["SuccessMessage"] = $"Successfully removed {email} from the newsletter list.";
+        }
+        return RedirectToAction(nameof(Subscribers));
     }
 }
