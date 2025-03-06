@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "About Us";
+    var heroImageUrl = ViewData["HeroImageUrl"] as string;
+}
+
+<!-- Debug: @heroImageUrl -->
+
+<div class="hero-section" style="background-image: url('@heroImageUrl')">
+    <div class="hero-content text-white">
+        <h1 class="hero-title display-4">Welcome to CloudFluff Inc.</h1>
+        <div class="hero-text">
+            <p class="lead">We love fluffy puffy little clouds and unicorns.. 
+            Feel free to explore our little corner of the sky.</p>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <h2>Our fluffy little cloud</h2>
+            <p>
+                We at CloudFluff Inc. feel that clouds are the most beautiful things in the sky.
+                Obviously, we love unicorns too. And obviously, clouds and unicorns make a great team.
+                And obviously, clouds belong to everyone while unicorns belongs to no one.
+                Thus, we are all about not owning anything, but sharing everything.
+            </p>
+        </div>
+        <div class="col-md-6">
+            <h2>Our Team</h2>
+            <p>
+                Unibunny is the founder of CloudFluff Inc.
+                Fluffycloudy is the CTO of CloudFluff Inc.
+                And of course, there's also the fluffy little cloud herself, CloudFluff.
+                And our pet dragon, Fluffunidragon. He is a bit grumpy, but he is still a part of our team.
+            </p>
+        </div>
+    </div>
+</div>
