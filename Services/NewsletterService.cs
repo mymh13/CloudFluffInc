@@ -1,64 +1,63 @@
 using CloudFluffInc.Models;
+using CloudFluffInc.Repositories;
 
 namespace CloudFluffInc.Services;
 
 public class NewsletterService : INewsletterService
 {
-    private static readonly List<Subscriber> _subscribers = [];
+    private readonly ISubscriberRepository _subscriberRepository;
+
+    public NewsletterService(ISubscriberRepository subscriberRepository)
+    {
+        _subscriberRepository = subscriberRepository;
+    }
 
     public async Task<OperationResult> SignUpForNewsletterAsync(Subscriber subscriber)
     {
-        return await Task.Run(() =>
-        {
-            if (subscriber == null || string.IsNullOrWhiteSpace(subscriber.Email))
+        if (subscriber == null || string.IsNullOrWhiteSpace(subscriber.Email))
             {
                 return OperationResult.Failure("Invalid subscriber data");
             }
 
-            if (IsAlreadySubscribed(subscriber.Email))
+            if (await _subscriberRepository.ExistsAsync(subscriber.Email))
             {
                 return OperationResult.Failure("You are already subscribed to the newsletter");
             }
 
-            _subscribers.Add(subscriber);
-            
+            var success = await _subscriberRepository.AddSubscriberAsync(subscriber);
+            if (!success)
+            {
+                return OperationResult.Failure("Failed to add subscriber");
+            }
+
             return OperationResult.Success($"Welcome to the newsletter, {subscriber.Name}!");
-        });
     }
 
     public async Task<OperationResult> OptOutFromNewsletterAsync(string email)
     {
-        return await Task.Run(() =>
-        {
-            if (string.IsNullOrWhiteSpace(email))
+        if (string.IsNullOrWhiteSpace(email))
             {
                 return OperationResult.Failure("Invalid email address");
             }
 
-            var subscriber = FindSubscriberByEmail(email);
+            var subscriber = await _subscriberRepository.GetSubscriberByEmailAsync(email);
             if (subscriber == null)
             {
                 return OperationResult.Failure("You are not subscribed to the newsletter");
             }
             
-            _subscribers.Remove(subscriber);
+            var success = await _subscriberRepository.DeleteSubscriberAsync(email);
+            if (!success)
+            {
+                return OperationResult.Failure("Failed to remove subscriber");
+            }
             
             return OperationResult.Success("You have been removed from the newsletter");
-        });
     }
 
     public async Task<IEnumerable<Subscriber>> GetActiveSubscribersAsync()
     {
-        return await Task.Run(() => _subscribers.ToList());
-    }
-
-    private static bool IsAlreadySubscribed(string email)
-    {
-        return _subscribers.Any(s => s.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
-    }
-
-    private static Subscriber? FindSubscriberByEmail(string email)
-    {
-        return _subscribers.FirstOrDefault(s => s.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+        var subscribers = await _subscriberRepository.GetAllSubscribersAsync();
+        return subscribers.ToList();
     }
 }
