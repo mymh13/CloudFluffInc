@@ -1,11 +1,49 @@
 using CloudFluffInc.Services;
 using CloudFluffInc.Repositories;
+using CloudFluffInc.Models;
+using CloudFluffInc.Configurations;
+using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
-builder.Services.AddSingleton<ISubscriberRepository, InMemorySubscriberRepository>();
+// builder.Services.AddSingleton<ISubscriberRepository, InMemorySubscriberRepository>();
+
+bool useMongoDb = builder.Configuration.GetValue<bool>("FeatureFlags:UseMongoDb");
+if (useMongoDb)
+{
+    // Configure MongoDB options
+    builder.Services.Configure<MongoDbOptions>(
+        builder.Configuration.GetSection(MongoDbOptions.SectionName));
+
+    // Configure MongoDB client
+    builder.Services.AddSingleton<IMongoClient>(serviceProvider => {
+        var mongoDbOptions = builder.Configuration.GetSection(MongoDbOptions.SectionName).Get<MongoDbOptions>();
+        return new MongoClient(mongoDbOptions?.ConnectionString);
+    });
+
+    // Configure MongoDB collection
+    builder.Services.AddSingleton<IMongoCollection<Subscriber>>(serviceProvider => {
+        var mongoDbOptions = builder.Configuration.GetSection(MongoDbOptions.SectionName).Get<MongoDbOptions>();
+        var mongoClient = serviceProvider.GetRequiredService<IMongoClient>();
+        var database = mongoClient.GetDatabase(mongoDbOptions?.DatabaseName);
+        return database.GetCollection<Subscriber>(mongoDbOptions?.SubscribersCollectionName);
+    });
+
+    // Register MongoDB repository
+    builder.Services.AddSingleton<ISubscriberRepository, MongoDbSubscriberRepository>();
+
+    Console.WriteLine("Using MongoDB repository");
+}
+else
+{
+    // Register in-memory repository as fallback
+    builder.Services.AddSingleton<ISubscriberRepository, InMemorySubscriberRepository>();
+
+    Console.WriteLine("Using in-memory repository");
+}
+
 builder.Services.AddScoped<INewsletterService, NewsletterService>();
 
 var app = builder.Build();
